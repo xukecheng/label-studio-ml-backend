@@ -132,3 +132,5 @@ dmypy.json
 .github/actions-hub
 
 .idea/
+
+cache.db
