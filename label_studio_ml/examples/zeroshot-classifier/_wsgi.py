@@ -68,7 +68,7 @@ if __name__ == "__main__":
         "--log-level",
         dest="log_level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        default=None,
+        default="INFO",
         help="Logging level",
     )
     parser.add_argument(

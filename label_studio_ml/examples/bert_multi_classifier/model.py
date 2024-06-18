@@ -91,7 +91,7 @@ class DistilbertClassifier(LabelStudioMLBase):
                     model=chk_path,
                     tokenizer=chk_path,
                     top_k=None,
-                    device=0
+                    device=0,
                 )
             except:
                 # if finetuned model is not available, use the baseline model, with the labels from the label_interface
@@ -100,7 +100,7 @@ class DistilbertClassifier(LabelStudioMLBase):
                     model=self.baseline_model_name,
                     tokenizer=self.baseline_model_name,
                     top_k=None,
-                    device=0
+                    device=0,
                 )
 
                 labels = self.get_labels()

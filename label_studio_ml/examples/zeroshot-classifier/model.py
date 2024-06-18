@@ -79,6 +79,13 @@ class ZeroShotClassifier(LabelStudioMLBase):
         count_above_threshold = len(scores_above_threshold)
 
         if count_above_threshold > 0:
+            logger.info(f"Text: {texts[0]}")
+            logger.info(
+                f"Predicted labels: {model_predictions['labels'][:count_above_threshold]}"
+            )
+            logger.info(
+                f"Predicted scores: {model_predictions['scores'][:count_above_threshold]}"
+            )
             region = li.get_tag(from_name).label(
                 model_predictions["labels"][:count_above_threshold]
             )
