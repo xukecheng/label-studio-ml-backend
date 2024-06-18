@@ -70,30 +70,38 @@ class ZeroShotClassifier(LabelStudioMLBase):
         from_name, to_name, value = li.get_first_tag_occurence("Choices", "Text")
         texts = [self.preload_task_data(task, task["data"][value]) for task in tasks]
         classes_verbalized = self.get_labels()
-        model_predictions = self._model(texts[0], classes_verbalized, multi_label=False)
+        model_predictions = self._model(texts, classes_verbalized, multi_label=False)
         predictions = []
 
         threshold = 0.06
-        scores = model_predictions["scores"]
-        scores_above_threshold = [score for score in scores if score > threshold]
-        count_above_threshold = len(scores_above_threshold)
+        for model_prediction in model_predictions:
+            scores = model_prediction["scores"]
+            scores_above_threshold = [score for score in scores if score > threshold]
+            count_above_threshold = len(scores_above_threshold)
 
-        if count_above_threshold > 0:
-            logger.info(f"Text: {texts[0]}")
-            logger.info(
-                f"Predicted labels: {model_predictions['labels'][:count_above_threshold]}"
-            )
-            logger.info(
-                f"Predicted scores: {model_predictions['scores'][:count_above_threshold]}"
-            )
-            region = li.get_tag(from_name).label(
-                model_predictions["labels"][:count_above_threshold]
-            )
-            average_confidence = sum(scores_above_threshold) / count_above_threshold
-            pv = PredictionValue(
-                score=average_confidence,
-                result=[region],
-                model_version=self.get("model_version"),
-            )
-            predictions.append(pv)
-            return ModelResponse(predictions=predictions)
+            if count_above_threshold > 0:
+                logger.info(f"Text: {texts[0]}")
+                logger.info(
+                    f"Predicted labels: {model_prediction['labels'][:count_above_threshold]}"
+                )
+                logger.info(
+                    f"Predicted scores: {model_prediction['scores'][:count_above_threshold]}"
+                )
+                region = li.get_tag(from_name).label(
+                    model_prediction["labels"][:count_above_threshold]
+                )
+                average_confidence = sum(scores_above_threshold) / count_above_threshold
+                pv = PredictionValue(
+                    score=average_confidence,
+                    result=[region],
+                    model_version=self.get("model_version"),
+                )
+                predictions.append(pv)
+            else:
+                logger.warning(
+                    f"No labels predicted for text: {model_prediction['sequence']}"
+                )
+                logger.warning(f"Predicted labels: {model_prediction['labels'][:5]}")
+                logger.warning(f"Predicted scores: {model_prediction['scores'][:5]}")
+
+        return ModelResponse(predictions=predictions)
